@@ -1,0 +1,8 @@
+{
+  "name": "job",
+  "version": "1.0.0",
+  "description": "Task for invite patronage 2023 program",
+  "main": "main.js",
+  "author": "Mateusz Szkudlarek",
+  "license": "ISC"
+}

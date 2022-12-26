@@ -1,0 +1,154 @@
+/* RESET BASIC STYLE  */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  overflow-wrap: break-word;
+}
+
+html,
+body {
+  height: 100%;
+  font-size: 62.5%;
+}
+
+input,
+textarea,
+button {
+  font-family: inherit;
+  font-size: inherit;
+}
+/* MY VARIABLES */
+
+:root {
+  --background-color: rgba(70, 70, 70, 0.5);
+  --primary-color-white: rgb(255, 255, 255);
+  --primary-color-black: rgb(35, 35, 35);
+  --neon-color: rgb(235, 78, 104);
+  --error-border: rgb(255, 0, 0);
+  --error-msg: rgb(136, 18, 18);
+  --fs-basic: 1.6rem;
+  --fs-medium: 2.5rem;
+}
+
+/* UTILITIES CLASSES */
+.app {
+  background-color: var(--background-color);
+  font-family: "Open Sans", sans-serif;
+  font-size: var(--fs-basic);
+  height: 100%;
+  width: 100%;
+}
+
+.content-wrapper {
+  margin: 0 auto;
+  max-width: 1400px;
+}
+
+/* .hidden {
+  opacity: 0;
+} */
+.hidden {
+  display: none !important;
+}
+/* MY CLASSES */
+
+/* COMPONENT HEADER */
+.header {
+  align-content: flex-start;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  padding: 50px;
+}
+.header__bnt {
+  margin: 10px;
+  transition: border 0.3s linear;
+}
+.header__logged {
+  font-weight: bold;
+  padding: 10px 0;
+  margin: 10px;
+  cursor: default;
+  align-self: center;
+}
+.header__bnt:hover {
+  border: 1px solid var(--neon-color);
+}
+.header--jc-flex-end {
+  justify-content: flex-end;
+}
+
+/* COMPONENT BUTTON */
+.bnt {
+  background-color: var(--primary-color-black);
+  border: 1px solid var(--primary-color-black);
+  color: var(--primary-color-white);
+  cursor: pointer;
+  letter-spacing: 1px;
+  padding: 20px 40px;
+  text-transform: lowercase;
+  width: 20rem;
+}
+.bnt::first-letter {
+  text-transform: uppercase;
+}
+/* Main Content */
+.main {
+  display: flex;
+  justify-content: center;
+  padding: 50px;
+}
+
+/* FORMS */
+.form {
+  display: grid;
+  align-items: flex-start;
+  gap: 10px;
+}
+.form__item {
+  width: 100%;
+}
+.form__item--sign-in,
+.form__item--sign-up {
+  grid-column: 2 / -1;
+}
+
+/* errors for forms */
+.error {
+  color: var(--error-msg);
+  text-align: center;
+}
+.form__item--error {
+  border: 2px solid var(--error-border);
+}
+@media (min-width: 576px) {
+  .form {
+    grid-template-columns: 1fr 2fr;
+    gap: 20px;
+  }
+  .form__item {
+    padding: 15px 10px;
+  }
+}
+/* Medium devices (tablets, 768px and up) */
+@media (min-width: 768px) {
+}
