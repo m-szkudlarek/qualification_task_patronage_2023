@@ -1,15 +1,29 @@
+// CONFIG
+const API = "https://api.npoint.io/38edf0c5f3eb9ac768bd";
+const TIMEOUT_SEC = 10;
+//---------------------------------------------------------------------------------------
 export const state = {
   canRegister: true,
   loggedIn: { logged: false }, //logged user
   allRegistered: [], //all users
+  apiData: {
+    transType: ["Inne", "Zakupy", "Planowane"],
+    transactions: [
+      { data: "21.07.2022", kwota: "155zl", typ: 1, saldo: "4132" },
+      { data: "24.08.2021", kwota: "-2155zl", typ: 2, saldo: "132" },
+    ],
+  },
 };
 
-export const registerUser = function (user) {
-  user.password = hashFunction(user.password);
-  state.allRegistered.push(user);
+export const logUser = function (user) {
   Object.assign(state.loggedIn, user);
   state.loggedIn.logged = true;
   setSessionStorage();
+};
+export const registerUser = function (user) {
+  user.password = hashFunction(user.password);
+  state.allRegistered.push(user);
+  logUser(user);
 };
 
 export const logOutUser = function () {
@@ -75,25 +89,28 @@ const throwErrorMSg = function (name, msg) {
   throw err;
 };
 
-export const validLogin = function (username, password) {
-  if (!username.length) throwErrorMSg("username", "Pole nie może byc puste");
+export const validLogin = function (login, password) {
+  if (!login.length) throwErrorMSg("login", "Pole nie może byc puste");
   if (!password.length) throwErrorMSg("password", "Pole nie może byc puste");
 
   // get user from database whose username was provided
   const lookingFor = state.allRegistered.findIndex(
-    (user) => user.username === username
+    (user) => user.username === login || user.email === login
   );
 
-  if (lookingFor === -1)
-    throwErrorMSg("username", "Taki użytkownik nie istnieje");
+  const regEx =
+    /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/g;
+  if (regEx.test(login) && lookingFor === -1)
+    throwErrorMSg(
+      "login",
+      "Użytkownik o takim mail'u nie posiada konta.Skorzystaj z darmowej rejestracji!"
+    );
+  if (lookingFor === -1) throwErrorMSg("login", "Taki użytkownik nie istnieje");
   // compare hashed passwords
   if (!(state.allRegistered[lookingFor].password === hashFunction(password)))
     throwErrorMSg("password", "Błędne hasło");
 
-  // set state to logged
-  Object.assign(state.loggedIn, state.allRegistered[lookingFor]);
-  state.loggedIn.logged = true;
-  setSessionStorage();
+  return state.allRegistered[lookingFor];
 };
 
 const hashFunction = function (str) {
@@ -124,4 +141,23 @@ export const loadSessionStorage = function () {
   const logged = JSON.parse(window.sessionStorage.getItem("logged"));
   if (!logged) return;
   state.loggedIn = { ...logged };
+};
+
+// Function to prevent too long time data fetch
+const timeout = function (s) {
+  return new Promise(function (_, reject) {
+    setTimeout(function () {
+      reject(new Error(`Request took too long! Timeout after ${s} second`));
+    }, s * 1000);
+  });
+};
+export const fetchData = async function () {
+  try {
+    const fetchData = fetch(API);
+    const res = await Promise.race([timeout(TIMEOUT_SEC), fetchData]);
+    const data = await res.json();
+    return data;
+  } catch (error) {
+    throw error;
+  }
 };

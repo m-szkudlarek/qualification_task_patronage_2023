@@ -1,13 +1,57 @@
 import mainView from "./views/mainView.js";
 import headerView from "./views/headerView.js";
 import formView from "./views/formView.js";
+import tableView from "./views/tableView.js";
 import * as model from "./model.js";
 
-function controlLoggedView() {
-  // hide buttons "logowanie" "rejestracja" and show label with bnt "wyloguj się"
-  headerView.loggedView(model.state.loggedIn);
-  // generate main content /transactions table with graphs
-  mainView.generateHtmlLoggedView();
+function hideRow(row) {
+  // change dataset clicked row on false
+  row.dataset.expand = row.dataset.expand === "true" ? false : false;
+  showRow(row);
+}
+function showRow(row) {
+  // change icon for visualization that you can click on row
+  row.lastElementChild.innerHTML = `<i class='bx bxs-${
+    row.dataset.expand === "true" ? "up" : "down"
+  }-arrow'></i>`;
+  // show/hide rows to next clickable row
+  let toShowHide = row.nextElementSibling;
+  while (toShowHide) {
+    toShowHide.classList.toggle("showRow");
+    toShowHide = toShowHide.nextElementSibling;
+    if (toShowHide?.classList.contains("table__tr--expandable")) break;
+  }
+}
+const controlTableRow = function (clicked) {
+  // check for open row
+  const prevOpened =
+    clicked.parentElement.querySelector(`[data-expand="true"]`);
+  // change dataset clicked row on opposite
+  clicked.dataset.expand = clicked.dataset.expand === "false" ? true : false;
+  // show or hide clicked row
+  clicked.dataset.expand === "false" && hideRow(clicked);
+  clicked.dataset.expand === "true" && showRow(clicked);
+  // hide previous opened row if was open
+  clicked !== prevOpened && prevOpened && hideRow(prevOpened);
+};
+
+async function controlLoggedView() {
+  try {
+    // hide buttons "logowanie" "rejestracja" and show label with bnt "wyloguj się"
+    headerView.loggedView(model.state.loggedIn);
+    // render spinner
+    mainView.renderSpinner();
+    // get data to generate table transaction
+    model.state.records = await model.fetchData();
+    // generate main content /transactions table with graphs
+    mainView.generateHtmlLoggedView(model.state.records);
+    // set parent element for created table
+    tableView.init();
+    // add handler to serve click on row
+    tableView.addHandlerExpandRow(controlTableRow);
+  } catch (error) {
+    console.error(error);
+  }
 }
 function controlLogOutView() {
   // opposite effect of headerView.loggedView();
@@ -15,6 +59,7 @@ function controlLogOutView() {
   //clear main content
   mainView.generateHtmlLogOut();
 }
+
 const controlRegisterUser = function (formData) {
   // get the data from form
   const newUser = {};
@@ -39,6 +84,7 @@ const controlRegisterUser = function (formData) {
 
   // Validaiton gone wrong cannot register new user
   if (!model.state.canRegister) return;
+
   // push new user to array of all registred users and set loggedIn object
   model.registerUser(newUser);
   // change to logged user view
@@ -64,7 +110,9 @@ const controlLoggedInUser = function (formData) {
     }
 
     // valid that user exist and password is correct
-    model.validLogin(logUser.username, logUser.password);
+    const temp = model.validLogin(logUser.login, logUser.password);
+    // log user
+    model.logUser(temp);
     //change to logged user view
     controlLoggedView();
   } catch (error) {
@@ -99,7 +147,7 @@ const controlHeaderFlow = function (clicked) {
     mainView.generateHtmlForm("form--sign-up");
   }
 
-  // creat form for sign in/sign up
+  // set parent element for class
   formView.init();
   // add handler to serve click on button
   formView.addHandlerSubmit(controlFormFlow);
