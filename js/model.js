@@ -6,13 +6,6 @@ export const state = {
   canRegister: true,
   loggedIn: { logged: false }, //logged user
   allRegistered: [], //all users
-  apiData: {
-    transType: ["Inne", "Zakupy", "Planowane"],
-    transactions: [
-      { data: "21.07.2022", kwota: "155zl", typ: 1, saldo: "4132" },
-      { data: "24.08.2021", kwota: "-2155zl", typ: 2, saldo: "132" },
-    ],
-  },
 };
 
 export const logUser = function (user) {

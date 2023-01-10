@@ -11,9 +11,10 @@ function hideRow(row) {
 }
 function showRow(row) {
   // change icon for visualization that you can click on row
-  row.lastElementChild.innerHTML = `<i class='bx bxs-${
+  row.lastElementChild.innerHTML = `<svg class="icon--svg">
+  <use href="../../icons.svg#icon-${
     row.dataset.expand === "true" ? "up" : "down"
-  }-arrow'></i>`;
+  }-arrow"></use></svg>`;
   // show/hide rows to next clickable row
   let toShowHide = row.nextElementSibling;
   while (toShowHide) {
@@ -35,6 +36,36 @@ const controlTableRow = function (clicked) {
   clicked !== prevOpened && prevOpened && hideRow(prevOpened);
 };
 
+const controlTableSearch = function (searched) {
+  // make if filtr is on search only filtred data
+  let filtredArray = model.state.transactions;
+  if (model.state.filtredArray) filtredArray = model.state.filtredArray;
+
+  // search table for search string no matter of lenght "" return all rows
+  const searchedArray = filtredArray.filter((t) =>
+    t.description.toLowerCase().includes(searched)
+  );
+
+  const newMarkup = mainView.generateHtmlLoggedView(
+    searchedArray,
+    model.state.transacationTypes,
+    false
+  );
+  tableView.updateTableView(newMarkup);
+};
+const controlTableFilter = function (selected) {
+  // filter table on type property or return all rows if 0-no filtr
+  model.state.filtredArray = model.state.transactions.filter(
+    (t) => t.type === Number(selected) || Number(selected) === 0
+  );
+
+  const newMarkup = mainView.generateHtmlLoggedView(
+    model.state.filtredArray,
+    model.state.transacationTypes,
+    false
+  );
+  tableView.updateTableView(newMarkup);
+};
 async function controlLoggedView() {
   try {
     // hide buttons "logowanie" "rejestracja" and show label with bnt "wyloguj się"
@@ -42,13 +73,26 @@ async function controlLoggedView() {
     // render spinner
     mainView.renderSpinner();
     // get data to generate table transaction
-    model.state.records = await model.fetchData();
+    const { transactions, transacationTypes } = await model.fetchData();
+    model.state.transactions = transactions;
+    model.state.transacationTypes = transacationTypes;
+    // sort transactions by date
+    model.state.transactions.sort(
+      (objA, objB) => new Date(objB.date) - new Date(objA.date)
+    );
     // generate main content /transactions table with graphs
-    mainView.generateHtmlLoggedView(model.state.records);
+    mainView.generateHtmlLoggedView(
+      model.state.transactions,
+      model.state.transacationTypes
+    );
     // set parent element for created table
     tableView.init();
     // add handler to serve click on row
     tableView.addHandlerExpandRow(controlTableRow);
+    // add handler to serve filter by type
+    tableView.addHandlerFilter(controlTableFilter);
+    // add handler to serve search by description
+    tableView.addHandlerSearch(controlTableSearch);
   } catch (error) {
     console.error(error);
   }
