@@ -1,3 +1,4 @@
+import { wordToCamelcase, returnStringInLang } from "../utilities.js";
 class MainView {
   #parentElement = document.querySelector(".main");
   #tableIcons = [
@@ -28,15 +29,35 @@ class MainView {
     "November",
     "December",
   ];
-  #helperFormType(whichOne) {
-    return whichOne === "form--sign-up" ? "username" : "login";
+
+  // INSERT GENERETED HTML MARKUP TO MAIN VIEW
+  _insertHtml(html = "") {
+    this.#parentElement.innerHTML = "";
+    this.#parentElement.insertAdjacentHTML("afterbegin", html);
   }
+
+  // METHODS TO GENERATE CAROUSEL BODY
+  #graphViewMobile() {
+    return ` 
+    <div class="carousel stretched"> 
+        <ul class="carousel__slider stretched">
+        </ul>
+    </div>
+    <div class="carousel__nav">
+    </div>`;
+  }
+
+  // METHODS TO GENERATE TRANSACTIONS TABLE
+  // return row with corresponding date
   #tableRowDate(date) {
-    return `<tr>
+    return `<tr class="tr__date">
     <td colspan="4">${date.getDate()} ${this.#months[date.getMonth()]}</td>
   </tr>`;
   }
-  #groupByDate(t, tTypes) {
+  // return tbody grouped by date mobile view only
+  #groupByDate(lang, t, tTypes) {
+    // check that data exists
+    if (!t.length && !tTypes.length) return;
     // always get sorted transactions descending by date
     let prevDate = new Date(t[0].date);
 
@@ -61,9 +82,21 @@ class MainView {
                 </td>
               </tr>
               <tr class="table__tr--expanded">
-                <th>Data:</th>
-                <th>Typ:</th>
-                <th>Saldo:</th>
+                <th data-lang-label="tableThDate">${returnStringInLang(
+                  lang,
+                  "Data",
+                  "Date"
+                )}:</th>
+                <th data-lang-label="tableThType">${returnStringInLang(
+                  lang,
+                  "Typ",
+                  "Type"
+                )}:</th>
+                <th data-lang-label="tableThBalance">${returnStringInLang(
+                  lang,
+                  "Saldo",
+                  "Balance"
+                )}:</th>
                 <th></th>
               </tr>
               <tr class="table__tr--expanded">
@@ -78,64 +111,66 @@ class MainView {
         .join("");
     return tbody;
   }
-  #tableViewMobile(t, tTypes) {
-    const thead = `
-    <thead>
-      <tr>
-        <th class="table--tname" colspan="4">Transactions</th>
-      </tr>
-      <tr>
-        <th colspan="2">
-          <label for="table__filtr">Filtruj:</label>
-          <select name="table__filtr" id="table__filtr">
-            <option value="0">Brak filtru</option>
-            ${Object.keys(tTypes)
-              .map((key) => `<option value="${key}">${tTypes[key]}</option>`)
-              .join("")}
-          </select>
-        </th>
-        <th colspan="2">
-          <div class="table__search">
-            <label for="table__search--input">Szukaj:</label>
-            <form class="table__search--container">
-              <input type="search" id="table__search--input" name="table__search--input">
-              <button type="submit" class="bnt bnt--search">
-                <svg>
-                  <use href="../../icons.svg#icon-search"></use>
-                </svg>
-              </button>
-            </form>
-          </div>
-        </th>
-      </tr>
-      <tr>
-        <th>Typ:</th>
-        <th>Opis:</th>
-        <th>Kwota:</th>
-        <th></th>
-      </tr>
-    </thead>`;
-    const tbody = `<tbody>${this.#groupByDate(t, tTypes)}</tbody>`;
-    return `<table class="table">${thead + tbody}</table>`;
+
+  //  create options to generate thead
+  #createOptions() {
+    const options = {};
+    if (window.matchMedia("(max-width: 768px)").matches) {
+      options.tnameCol = 4;
+      options.filterCol = 2;
+      options.searchCol = 2;
+    } else {
+      options.tnameCol = 5;
+      options.filterCol = 2;
+      options.searchCol = 3;
+    }
+    return options;
   }
-  #tableViewDesktop(t, tTypes) {
+
+  #returnThTable(string, string768) {
+    return window.matchMedia("(max-width: 768px)").matches ? string768 : string;
+  }
+  // generate thead
+  #generateThead(lang, tTypes) {
+    const options = this.#createOptions();
     const thead = `<thead>
     <tr>
-      <th class="table--tname" colspan="5">Transactions</th>
+      <th class="table--tname" colspan="${
+        options.tnameCol
+      }" data-lang-label="tableName">${returnStringInLang(
+      lang,
+      "Transakcje",
+      "Transactions"
+    )}</th>
     </tr>
     <tr>
-      <th colspan="2">
-        <label for="table__filtr">Filtruj:</label>
+      <th colspan="${options.filterCol}">
+        <label for="table__filtr" data-lang-label="tableFilter">${returnStringInLang(
+          lang,
+          "Filtruj",
+          "Filter"
+        )}:</label>
         <select name="table__filtr" id="table__filtr">
-          <option value="0" selected>Brak filtru</option>
+          <option value="0" data-lang-label="tableOpt0">${returnStringInLang(
+            lang,
+            "Brak filtru",
+            "No filter"
+          )}</option>
           ${Object.keys(tTypes)
-            .map((key) => `<option value="${key}">${tTypes[key]}</option>`)
+            .map(
+              (key) =>
+                `<option value="${key}" data-lang-label="tableOpt${key}">${tTypes[key]}</option>`
+            )
             .join("")}
         </select>
        </th>
-       <th colspan="3">
+       <th colspan="${options.searchCol}">
         <div class="table__search">
-          <label for="table__search--input">Szukaj:</label>
+          <label for="table__search--input" data-lang-label="tableSearch">${returnStringInLang(
+            lang,
+            "Szukaj",
+            "Search"
+          )}:</label>
           <form class="table__search--container">
             <input type="search" id="table__search--input" name="table__search--input">
             <button type="submit" class="bnt bnt--search">
@@ -148,13 +183,48 @@ class MainView {
       </th>
     </tr>
     <tr>
-      <th>Data:</th>
-      <th>Typ transakcji:</th>
-      <th>Opis:</th>
-      <th>Kwota:</th>
-      <th>Saldo:</th>
+      ${this.#returnThTable(
+        `<th data-lang-label="tableThDate">${returnStringInLang(
+          lang,
+          "Data",
+          "Date"
+        )}:</th>`,
+        ""
+      )}
+      <th data-lang-label="tableThType">${returnStringInLang(
+        lang,
+        "Typ",
+        "Type"
+      )}:</th>
+      <th data-lang-label="tableThDesc">${returnStringInLang(
+        lang,
+        "Opis",
+        "Description"
+      )}:</th>
+      <th data-lang-label="tableThAmount">${returnStringInLang(
+        lang,
+        "Kwota",
+        "Amount"
+      )}:</th>
+        ${this.#returnThTable(
+          `<th data-lang-label="tableThBalance">${returnStringInLang(
+            lang,
+            "Saldo",
+            "Balance"
+          )}:</th>`,
+          "<th></th>"
+        )}
     </tr>
   </thead>`;
+    return thead;
+  }
+  #tableViewMobile(lang, t, tTypes) {
+    const thead = this.#generateThead(lang, tTypes);
+    const tbody = `<tbody>${this.#groupByDate(lang, t, tTypes)}</tbody>`;
+    return `<table class="table">${thead + tbody}</table>`;
+  }
+  #tableViewDesktop(lang, t, tTypes) {
+    const thead = this.#generateThead(lang, tTypes);
     const tbody =
       "<tbody>" +
       t
@@ -173,76 +243,87 @@ class MainView {
       "</tbody>";
     return `<table class="table">${thead + tbody}</table>`;
   }
-  _insertHtml(html = "") {
-    this.#parentElement.innerHTML = "";
-    this.#parentElement.insertAdjacentHTML("afterbegin", html);
-  }
-  //   generate markup html for both forms
-  generateHtmlForm(whichOne) {
-    // first part of form this always has to render
-    const markupPartOne = `<form class="form ${whichOne}">
-    <label for=${this.#helperFormType(
-      whichOne
-    )} class="form__item">Nazwa użytkownika${
-      whichOne === "form--sign-up" ? "" : "/Email"
-    }:</label>
-    <div>
-      <input
-        id=${this.#helperFormType(whichOne)}
-        type="text"
-        class="form__item"
-        name=${this.#helperFormType(whichOne)}
-      />
-      <p class="error error--${this.#helperFormType(whichOne)}"></p>
-    </div>
-    <label for="password" class="form__item">Hasło:</label>
-    <div>
-      <input
-        id="password"
-        type="password"
-        class="form__item"
-        name="password"
-      />
-      <p class="error error--password"></p>
-    </div>`;
 
-    const markupPartTwo =
-      whichOne === "form--sign-up"
-        ? `<label for="email" class="form__item">Email:</label>
-    <div>
-      <input id="email" type="text" class="form__item" name="email" />
-      <p class="error error--email"></p>
-    </div>
-    <label for="emailConfirm" class="form__item">Potwierdż email:</label>
-    <div>
-      <input
-        id="emailConfirm"
-        type="text"
-        class="form__item"
-        name="emailConfirm"
-      />
-      <p class="error error--emailConfirm"></p>
-    </div>
-    <button type="submit" class="form__item bnt form__item--sign-up">
-      zarejestruj się
-    </button>
-  </form>`
-        : `<button type="submit" class="form__item bnt form__item--sign-in">
-        zaloguj się
-      </button>
-    </form>`;
-    this._insertHtml(markupPartOne + markupPartTwo);
-  }
-
-  generateHtmlLoggedView(t, tTypes, render = true) {
-    if (!t || !tTypes) return;
+  // A METHOD TO CONNECT TRANSACTIONS AND CHARTS
+  generateHtmlLoggedView(lang, t, tTypes, render = true) {
+    if (!t && !tTypes) return;
+    const markupG = `<div class="graphs">${
+      window.matchMedia("(max-width: 768px)").matches
+        ? this.#graphViewMobile(t, tTypes)
+        : ""
+    }</div>`;
     const markupT = `<div class="transactions">${
       window.matchMedia("(max-width: 768px)").matches
-        ? this.#tableViewMobile(t, tTypes)
-        : this.#tableViewDesktop(t, tTypes)
+        ? this.#tableViewMobile(lang, t, tTypes)
+        : this.#tableViewDesktop(lang, t, tTypes)
     }</div>`;
     if (!render) return markupT;
-    this._insertHtml(markupT);
+    this._insertHtml(markupG + markupT);
+  }
+
+  //   METHODS TO GENERETE FORMS
+  #generateInputForm(inputName, labelValue) {
+    return `<label for="${inputName}" class="form__item" data-lang-label="label${wordToCamelcase(
+      inputName
+    )}">${labelValue}:</label>
+    <div>
+      <input
+        id="${inputName}"
+        type="${inputName === "password" ? inputName : "text"}"
+        class="form__item"
+        name="${inputName}"
+      />
+      <p class="error error--${inputName}"></p>
+    </div>`;
+  }
+
+  #generateSignUpForm(lang) {
+    const username = this.#generateInputForm(
+      "username",
+      returnStringInLang(lang, "Nazwa użytkownika", "Username")
+    );
+    const password = this.#generateInputForm(
+      "password",
+      returnStringInLang(lang, "Hasło", "Password")
+    );
+    const email = this.#generateInputForm("email", "Email");
+    const confirmEmail = this.#generateInputForm(
+      "emailConfirm",
+      returnStringInLang(lang, "Potwierdż email", "Confirm email")
+    );
+    return username + password + email + confirmEmail;
+  }
+  #generateSignInForm(lang) {
+    const login = this.#generateInputForm(
+      "login",
+      returnStringInLang(lang, "Nazwa użytkownika/Email", "Username/Email")
+    );
+    const password = this.#generateInputForm(
+      "password",
+      returnStringInLang(lang, "Hasło", "Password")
+    );
+
+    return login + password;
+  }
+  generateHtmlForm(whichOne, lang) {
+    const formInputs =
+      whichOne === "form--sign-in"
+        ? this.#generateSignInForm(lang)
+        : this.#generateSignUpForm(lang);
+
+    const buttonText =
+      whichOne === "form--sign-in"
+        ? returnStringInLang(lang, "zaloguj się", "sign in")
+        : returnStringInLang(lang, "zarejestruj się", "sign up");
+    const formButton = `
+    <button type="submit" class="form__item bnt form__item--sign-${whichOne.slice(
+      -2
+    )}" data-lang-label="bntSign${wordToCamelcase(whichOne.slice(-2))}">
+    ${buttonText}
+    </button>`;
+
+    const markup = `<form class="form ${whichOne}">${formInputs}${formButton}</form>`;
+    this._insertHtml(markup);
   }
 
   generateHtmlLogOut() {

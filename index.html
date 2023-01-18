@@ -12,72 +12,38 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="./main.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.1.2/chart.umd.min.js"></script>
     <script type="module" src="./js/controller.js"></script>
   </head>
   <body>
-    <div class="app">
-      <header class="header content-wrapper">
-        <button class="bnt bnt--sign-in header__bnt hidden">logowanie</button>
-        <button class="bnt bnt--sign-up header__bnt hidden">rejestracja</button>
-        <span class="header__logged hidden">Mateusz123xdGood</span>
-        <button class="bnt bnt--sign-out header__bnt hidden">wyloguj</button>
+    <div class="app stretched">
+      <header>
+        <div class="header content-wrapper">
+          <button
+            class="bnt bnt--sign-in header__bnt hidden"
+            data-lang-label="signIn"
+          >
+            logowanie
+          </button>
+          <button
+            class="bnt bnt--sign-up header__bnt hidden"
+            data-lang-label="signUp"
+          >
+            rejestracja
+          </button>
+          <span class="header__logged hidden"></span>
+          <button
+            class="bnt bnt--sign-out header__bnt hidden"
+            data-lang-label="signOut"
+          >
+            wyloguj
+          </button>
+          <div id="toggle" class="toggle">
+            <button class="toggle__indicator">PL</button>
+          </div>
+        </div>
       </header>
-      <main class="main content-wrapper">
-        <div class="graph"></div>
-        <!-- <div class="transactions">
-          <table class="table">
-            <thead>
-              <tr>
-                <th class="table--tname" colspan="4">Transactions</th>
-              </tr>
-              <tr>
-                <th>Ikona:</th>
-                <th>Opis:</th>
-                <th>Kwota:</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr class="table__tr--expandable">
-                <td>Inne</td>
-                <td>Biedronka</td>
-                <td>-231.49</td>
-                <td><i class="bx bxs-down-arrow"></i></td>
-              </tr>
-              <tr class="table__tr--expanded">
-                <th>Data:</th>
-                <th>Typ:</th>
-                <th>Saldo:</th>
-                <th></th>
-              </tr>
-              <tr class="table__tr--expanded">
-                <td>2022-11-12</td>
-                <td>Wydatki - zakupy</td>
-                <td>4337.25</td>
-                <td></td>
-              </tr>
-              <tr class="table__tr--expandable">
-                <td>Inne</td>
-                <td>Biedronka</td>
-                <td>-231.49</td>
-                <td><i class="bx bxs-down-arrow"></i></td>
-              </tr>
-              <tr class="table__tr--expanded">
-                <th>Data:</th>
-                <th>Typ:</th>
-                <th>Saldo:</th>
-                <th></th>
-              </tr>
-              <tr class="table__tr--expanded">
-                <td>2022-11-12</td>
-                <td>Wydatki - zakupy</td>
-                <td>4337.25</td>
-                <td></td>
-              </tr>
-            </tbody>
-          </table>
-        </div> -->
-      </main>
+      <main class="main content-wrapper"></main>
     </div>
   </body>
 </html>

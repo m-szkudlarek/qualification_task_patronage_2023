@@ -1,5 +1,5 @@
 class HeaderView {
-  #parentElement = document.querySelector("header");
+  #parentElement = document.querySelector(".header");
 
   hideBnt(bnt) {
     bnt.classList.add("hidden");
