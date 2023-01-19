@@ -80,6 +80,9 @@ select {
 .hidden {
   display: none !important;
 }
+.appear-animation {
+  animation: appear 1s linear;
+}
 /* MY CLASSES */
 
 /* COMPONENT HEADER */
@@ -165,6 +168,7 @@ header {
   align-items: center;
   padding: 5px;
   height: 80%;
+  overflow: hidden;
 }
 
 /* FORMS */
@@ -373,5 +377,20 @@ header {
 
   100% {
     transform: rotate(360deg);
+  }
+}
+
+@keyframes appear {
+  0% {
+    transform: translateY(30%);
+    opacity: 0;
+  }
+  50% {
+    transform: translateY(10%);
+    opacity: 0.4;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
   }
 }

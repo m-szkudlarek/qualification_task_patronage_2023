@@ -15,20 +15,35 @@ class MainView {
       <use href="../../icons.svg#icon-credit-card"></use>
     </svg>`,
   ];
-  #months = [
-    "January",
-    "February",
-    "Marc",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
+  #months;
+
+  // SET MONTHS
+  setLanguageMonths(lang) {
+    this.#months = [
+      returnStringInLang(lang, "Styczeń", "January"),
+      returnStringInLang(lang, "Luty", "February"),
+      returnStringInLang(lang, "Marzec", "Marc"),
+      returnStringInLang(lang, "Kwiecień", "April"),
+      returnStringInLang(lang, "Maj", "May"),
+      returnStringInLang(lang, "Czerwiec", "June"),
+      returnStringInLang(lang, "Lipiec", "July"),
+      returnStringInLang(lang, "Sierpień", "August"),
+      returnStringInLang(lang, "Wrzesień", "September"),
+      returnStringInLang(lang, "Październik", "October"),
+      returnStringInLang(lang, "Listopad", "November"),
+      returnStringInLang(lang, "Grudzień", "December"),
+    ];
+  }
+
+  // play animation appear main content
+  playAnimation() {
+    // get element childs
+    const elToPlayAnimation = Array.from(this.#parentElement.children);
+    if (!elToPlayAnimation.length) return;
+    elToPlayAnimation.forEach((child) =>
+      child.classList.add("appear-animation")
+    );
+  }
 
   // INSERT GENERETED HTML MARKUP TO MAIN VIEW
   _insertHtml(html = "") {
@@ -43,8 +58,8 @@ class MainView {
         <ul class="carousel__slider stretched">
         </ul>
     </div>
-    <div class="carousel__nav">
-    </div>`;
+    <nav class="carousel__nav">
+    </nav>`;
   }
 
   // METHODS TO GENERATE TRANSACTIONS TABLE
@@ -115,7 +130,7 @@ class MainView {
   //  create options to generate thead
   #createOptions() {
     const options = {};
-    if (window.matchMedia("(max-width: 768px)").matches) {
+    if (!window.matchMedia("(min-width: 768px)").matches) {
       options.tnameCol = 4;
       options.filterCol = 2;
       options.searchCol = 2;
@@ -128,7 +143,9 @@ class MainView {
   }
 
   #returnThTable(string, string768) {
-    return window.matchMedia("(max-width: 768px)").matches ? string768 : string;
+    return !window.matchMedia("(min-width: 768px)").matches
+      ? string768
+      : string;
   }
   // generate thead
   #generateThead(lang, tTypes) {
@@ -247,16 +264,16 @@ class MainView {
   // A METHOD TO CONNECT TRANSACTIONS AND CHARTS
   generateHtmlLoggedView(lang, t, tTypes, render = true) {
     if (!t && !tTypes) return;
-    const markupG = `<div class="graphs">${
-      window.matchMedia("(max-width: 768px)").matches
+    const markupG = `<section class="graphs">${
+      !window.matchMedia("(min-width: 768px)").matches
         ? this.#graphViewMobile(t, tTypes)
         : ""
-    }</div>`;
-    const markupT = `<div class="transactions">${
-      window.matchMedia("(max-width: 768px)").matches
+    }</section>`;
+    const markupT = `<section class="transactions">${
+      !window.matchMedia("(min-width: 768px)").matches
         ? this.#tableViewMobile(lang, t, tTypes)
         : this.#tableViewDesktop(lang, t, tTypes)
-    }</div>`;
+    }</section>`;
     if (!render) return markupT;
     this._insertHtml(markupG + markupT);
   }

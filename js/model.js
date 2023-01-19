@@ -219,9 +219,9 @@ export const fetchData = async function () {
 };
 
 export const recognizeDevice = function () {
-  state.isChangeMainLayout = window.matchMedia("(max-width: 768px)").matches
-    ? 1
-    : -1;
+  state.isChangeMainLayout = window.matchMedia("(min-width: 768px)").matches
+    ? -1
+    : 1;
 };
 
 function customTransaction() {

@@ -18,7 +18,7 @@ class ChartView {
   }
 
   addChartToView(chart) {
-    if (window.matchMedia("(max-width: 768px)").matches) {
+    if (!window.matchMedia("(min-width: 768px)").matches) {
       const li = document.createElement("li");
       li.setAttribute("class", "carousel__slide stretched");
       li.appendChild(chart);
@@ -56,14 +56,6 @@ class ChartView {
     });
   }
 
-  #coloredBar() {
-    return (ctx) => {
-      const v = ctx.parsed.y;
-      const color = v < 0 ? "rgb(255, 0, 0)" : "rgb(0, 189, 0)";
-
-      return color;
-    };
-  }
   createPieChart(lang, t, tTypes) {
     const placeholder = this.#createBoxChart();
     const canvas = placeholder.firstChild;
@@ -167,7 +159,12 @@ class ChartView {
         },
         elements: {
           bar: {
-            backgroundColor: this.#coloredBar(),
+            backgroundColor: function (context) {
+              const v = context.parsed.y;
+              const color = v < 0 ? "rgb(255, 0, 0)" : "rgb(0, 189, 0)";
+
+              return color;
+            },
             borderColor: "rgb(35,35,35)",
             borderWidth: 2,
           },

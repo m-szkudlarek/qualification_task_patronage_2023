@@ -29,7 +29,7 @@ function controlHeaderFlow(clicked) {
   //  change language
   if (clicked.classList.contains("toggle__indicator")) {
     // change label on button
-    clicked.textContent === "PL"
+    clicked.textContent.trim() === "PL"
       ? (clicked.textContent = "EN")
       : (clicked.textContent = "PL");
     // animation of changing language
@@ -50,6 +50,8 @@ function controlHeaderFlow(clicked) {
     mainView.generateHtmlForm("form--sign-up", model.state.language);
   }
 
+  // animation of appear content
+  mainView.playAnimation();
   // set parent element for class
   formView.init();
   // add handler to serve click on button
@@ -170,11 +172,9 @@ function controlLogOutView() {
 
 // RESZIE OBSERVER TO CHANGING LAYOUT OF MAIN VIEW
 const controlMainLayout = function () {
-  resizeObserver = new ResizeObserver(function (entries) {
-    const { borderBoxSize } = entries[0];
-    const width = borderBoxSize[0].inlineSize;
-    let diff = 768 - width;
-    if (Math.sign(diff) === model.state.isChangeMainLayout) {
+  resizeObserver = new ResizeObserver(function () {
+    let diff = window.matchMedia("(min-width: 768px)").matches ? -1 : 1;
+    if (diff === model.state.isChangeMainLayout) {
       handleGenerateMain();
       model.state.isChangeMainLayout *= -1;
     }
@@ -184,6 +184,7 @@ const controlMainLayout = function () {
 
 // MAIN VIEW CONTROLLER TO DISPLAY CHARTS AND TRANSACTIONS TABLE ----------------------------------------------------------
 function handleGenerateMain() {
+  mainView.setLanguageMonths(model.state.language);
   // generate markups for main content /transactions table with graphs
   mainView.generateHtmlLoggedView(
     model.state.language,
@@ -210,7 +211,7 @@ function handleGenerateMain() {
   );
 
   // carousel support for width below 768px
-  if (window.matchMedia("(max-width: 768px)").matches) {
+  if (!window.matchMedia("(min-width: 768px)").matches) {
     // init data for the carousel to work
     carouselView.init();
     carouselView.setPositionSlides();
@@ -229,6 +230,8 @@ function handleGenerateMain() {
   tableView.addHandlerFilter(controlTableFilter);
   // add handler to serve search by description
   tableView.addHandlerSearch(controlTableSearch);
+  // animation of appear content
+  mainView.playAnimation();
 }
 
 // CHARTS CONTROLLER
@@ -274,7 +277,7 @@ function showRow(row) {
   while (toShowHide) {
     toShowHide.classList.toggle("showRow");
     toShowHide = toShowHide.nextElementSibling;
-    if (toShowHide?.classList.contains("table__tr--expandable")) break;
+    if (toShowHide?.classList.contains("tr__date")) break;
   }
 }
 const controlTableRow = function (clicked) {
@@ -340,6 +343,7 @@ const settingLanguage = function (lang) {
     model.state.transacationTypes
   );
 
+  mainView.setLanguageMonths(model.state.language);
   // update table body
   const useTable = model.state.filtredArray
     ? model.state.filtredArray
